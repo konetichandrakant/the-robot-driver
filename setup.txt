@@ -1,0 +1,16 @@
+Docker Setup Created:
+    Dockerfile - Contains instructions to build your Python environment with Playwright
+    docker-compose.yml - Easy way to run and manage your container
+    .dockerignore - Excludes unnecessary files from Docker builds
+
+To use Docker:
+    Build and run:
+        docker-compose up --build
+    
+    Or if you prefer separate command
+    
+    Build the image:
+        docker build -t the-robot-driver .
+
+# Run the container
+docker run -p 8000:8000 the-robot-driver
