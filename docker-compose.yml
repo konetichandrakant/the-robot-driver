@@ -7,9 +7,5 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-      - /app/venv  # Exclude virtual environment
     environment:
       - PYTHONUNBUFFERED=1
-    # Add any additional environment variables or volume mounts as needed
-    # env_file:
-    #   - .env
