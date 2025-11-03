@@ -25,5 +25,5 @@ COPY . .
 # Expose port (adjust if your app uses a different port)
 EXPOSE 8000
 
-# Command to run the application (adjust based on your main script)
-CMD ["python", "playwright_mcp_automation.py"]
+# # Command to run the application (adjust based on your main script)
+# CMD ["python", "playwright_mcp_automation.py"]
