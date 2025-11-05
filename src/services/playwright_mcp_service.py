@@ -1,7 +1,7 @@
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-class MCPService:
+class PlaywrightMCPService:
     def __init__(self):
         self._ctx = None
         self._session = None
