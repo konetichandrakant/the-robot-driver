@@ -1,10 +1,6 @@
 import asyncio
-import os
-from dotenv import load_dotenv
 from playwright.async_api import async_playwright
-
-# Load environment variables from .env.example file
-load_dotenv(".env.example")
+from utils.automation_utils import get_website, get_user_credentials
 
 async def login(url, username, password):
     async with async_playwright() as p:
@@ -35,10 +31,9 @@ async def login(url, username, password):
         await browser.close()
 
 async def main():
-    url = os.getenv("WEBSITE_URL")
-    username = os.getenv("USER_EMAIL")
-    password = os.getenv("USER_PASSWORD")
+    website_url = get_website()
+    username, password = get_user_credentials()
 
-    await login(url, username, password)
+    await login(website_url, username, password)
 
 asyncio.run(main())
