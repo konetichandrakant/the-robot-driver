@@ -1,29 +1,19 @@
-FROM python:3.12-slim
+FROM mcr.microsoft.com/playwright/python:v1.47.0-noble
 
-# Set working directory
+# The base image already has most dependencies, just add xvfb
+RUN apt-get update && apt-get install -y --no-install-recommends xvfb && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 WORKDIR /app
 
-# Install system dependencies for Playwright
-RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first for better layer caching
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers
-RUN playwright install
+COPY . /app
 
-# Copy application code
-COPY . .
+ENV PYTHONPATH=/app/src
+ENV HEADLESS=false
+ENV DISPLAY=:99
 
-# Expose port (adjust if your app uses a different port)
-EXPOSE 8000
-
-# # Command to run the application (adjust based on your main script)
-# CMD ["python", "playwright_mcp_automation.py"]
+CMD ["bash","-lc","xvfb-run -a --server-args='-screen 0 1280x800x24 -ac' python -m src.tasks.login"]
