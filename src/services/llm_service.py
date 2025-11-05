@@ -1,8 +1,5 @@
-import os
 from openai import OpenAI
-from dotenv import load_dotenv
-
-load_dotenv(".env.example")
+from utils.automation_utils import get_model
 
 class LLMService:
     def __init__(self, client:OpenAI):
@@ -11,7 +8,7 @@ class LLMService:
 
     def generate_response(self, messages: list) -> str:
         response = self.client.chat.completions.create(
-            model=os.getenv("OPENROUTER_MODEL"),
+            model=get_model(),
             messages=messages
         )
         return response.choices[0].message.content.strip()
