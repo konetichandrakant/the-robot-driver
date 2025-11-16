@@ -36,7 +36,7 @@ the-robot-driver/
 ├── requirements.txt              # Python dependencies
 ├── Dockerfile                   # Docker configuration
 ├── docker-compose.yml          # Docker Compose setup
-├── .env.example                # Environment variables template
+├── .env                        # Environment variables
 └── README.md                   # This file
 ```
 
@@ -52,7 +52,6 @@ the-robot-driver/
 
 2. **Configure environment**
    ```bash
-   cp .env.example .env
    # Edit .env with your settings
    ```
 
@@ -71,7 +70,6 @@ the-robot-driver/
 
 2. **Configure environment**
    ```bash
-   cp .env.example .env
    # Edit .env with your settings
    ```
 
@@ -82,7 +80,7 @@ the-robot-driver/
 
 ## Configuration
 
-The application uses environment variables for configuration. Copy `.env.example` to `.env` and modify as needed:
+The application uses environment variables for configuration. Modify the `.env` file as needed:
 
 ```bash
 # Application Settings
