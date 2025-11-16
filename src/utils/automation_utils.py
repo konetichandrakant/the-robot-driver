@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv(".env.example")
+load_dotenv(".env")
 
 def get_website():
     if os.getenv("WEBSITE_URL") is None:
