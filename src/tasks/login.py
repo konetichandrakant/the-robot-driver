@@ -1,8 +1,9 @@
 import asyncio
 from playwright.async_api import async_playwright
-from utils.automation_utils import get_website, get_user_credentials
+from utils.automation_utils import get_website, get_user_credentials, get_headless_mode
 
 async def login(url, username, password):
+    print("Login requested.")
     async with async_playwright() as p:
         # Create browser instance (to have a real time view of the actions, headless is set to False)
         browser = await p.chromium.launch(headless=False, slow_mo=600)
@@ -36,4 +37,5 @@ async def main():
 
     await login(website_url, username, password)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
