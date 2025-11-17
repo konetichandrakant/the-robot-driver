@@ -1,7 +1,7 @@
 import json
 from openai import OpenAI
-from src.services.llm_service import LLMService
-from src.services.playwright_mcp_service import PlaywrightMCPService
+from services.llm_service import LLMService
+from services.playwright_mcp_service import PlaywrightMCPService
 from utils.automation_utils import get_website, get_llm_api_key, get_llm_url
 from utils.prompt_utils import default_system_prompt, create_user_prompt
 
@@ -16,7 +16,7 @@ class LLMMCPAutomation:
         await self.playwright_mcp_service.session.call_tool("goto", {"url": get_website}) # Start automation by going to website
         
         done = False # flag to confirm completion of automation
-        max_iterations = 10  # safety limit to prevent infinite loops
+        max_iterations = 20  # safety limit to prevent infinite loops
         
         while not done and max_iterations>0:
             # Get current page content and available tools from MCP
