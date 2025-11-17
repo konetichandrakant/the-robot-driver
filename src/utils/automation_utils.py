@@ -27,3 +27,8 @@ def get_llm_api_key():
     if os.getenv("OPENROUTER_API_KEY") is None:
         raise ValueError("OPENROUTER_API_KEY environment variable is not set.")
     return os.getenv("OPENROUTER_API_KEY")
+
+def get_headless_mode():
+    if os.getenv("BROWSER_HEADLESS") is None:
+        raise ValueError("BROWSER_HEADLESS environment variable is not set.")
+    return os.getenv("BROWSER_HEADLESS").lower() in ('true', True, 'True')

@@ -39,10 +39,6 @@ Thumbs.db
 .git/
 .gitignore
 
-# Environment variables
-.env
-.env.local
-
 # Docker
 Dockerfile
 docker-compose.yml
