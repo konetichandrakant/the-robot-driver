@@ -1,5 +1,5 @@
 #====================================================
-#  The Robot Driver - Docker Setup Guide (Windows WSL)
+#  The Robot Driver - Docker Setup Guide (Windows WSL if using windows os like me)
 #====================================================
 # This script sets up the Docker container for GUI applications
 # Run these commands in your WSL terminal after installing WSL and Docker Desktop
@@ -15,7 +15,7 @@ export LIBGL_ALWAYS_INDIRECT=1
 #----------------------------------------
 #  Navigate to Project Directory
 #----------------------------------------
-cd /mnt/d/ck/projects/the-robot-driver
+cd /mnt/d/ck/projects/the-robot-driver ( In my case )
 
 #----------------------------------------
 #  Docker Setup
@@ -29,8 +29,5 @@ docker build --no-cache -t the-robot-driver-app .
 #----------------------------------------
 #  Run Docker Container
 #----------------------------------------
-# Run the container with GUI support and interactive terminal
-docker run --rm -it \
-  -e DISPLAY=$DISPLAY \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  the-robot-driver-app
+# Run the container with GUI support and interactive terminal which can be seen by running below command
+docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix the-robot-driver-app pytest tests/test_login_task.py
