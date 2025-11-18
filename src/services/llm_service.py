@@ -1,5 +1,5 @@
 from openai import OpenAI
-from utils.automation_utils import get_model
+from src.utils.automation_utils import get_model
 
 class LLMService:
     def __init__(self, client:OpenAI):

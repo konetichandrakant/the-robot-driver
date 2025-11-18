@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/playwright/python:v1.47.0-noble
 
-# Install xvfb + nodejs/npm
+# Install xvfb + nodejs/npm (for Playwright MCP Node server)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     nodejs \
@@ -11,25 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Work in /app
 WORKDIR /app
 
-# Python deps first (so we cache them if requirements.txt doesn't change)
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the project
-COPY . /app
-
-# Pre-install @playwright/mcp and Chrome for Playwright
-# - Create package.json if it doesn't exist
-# - Install @playwright/mcp locally
-# - Install the Chrome browser distribution Playwright expects
-RUN if [ ! -f package.json ]; then npm init -y; fi && \
+# This layer will be reused as long as everything above doesn't change.
+RUN npm init -y && \
     npm install @playwright/mcp@0.0.47 && \
     npx playwright install chrome
 
-# Make src importable as a top-level package
-ENV PYTHONPATH=/app/src
-ENV PYTHONUNBUFFERED=1
-ENV HEADLESS=false
+# Python deps (requirements.txt)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Default command: run the login task (you can override with pytest)
-CMD ["python", "-m", "src.tasks.login"]
+# ---- App source code (changes often, last) ----
+COPY . /app

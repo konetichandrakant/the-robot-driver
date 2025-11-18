@@ -3,79 +3,89 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 class PlaywrightMCPService:
-    def __init__(self):
+    def __init__(self, headless: bool = True, browser: str = "chrome"):
+        self.headless = headless
+        self.browser = browser
         self._ctx = None
+        self._session_cm = None
         self._session = None
+        self._read = None
+        self._write = None
 
     async def start(self):
-        try:
-            print("[MCP] Starting Playwright MCP server...")
-            server = StdioServerParameters(
-                command="npx",
-                args=["@playwright/mcp@latest"],
-            )
-            print("[MCP] Creating stdio client...")
-            self._ctx = stdio_client(server)
-            self._read, self._write = await self._ctx.__aenter__()
-            print("[MCP] stdio client created, creating session...")
-            self._session_cm = ClientSession(self._read, self._write)
-            self._session = await self._session_cm.__aenter__()
-            print("[MCP] Session created, initializing...")
-            await self._session.initialize()
-            print("[MCP] Initialization complete!")
-        except Exception as e:
-            print(f"[MCP] ERROR starting service: {e}")
-            import traceback
-            traceback.print_exc()
-            raise
+        args = [
+            "@playwright/mcp@latest",
+            f"--browser={self.browser}",
+            "--isolated",
+            "--no-sandbox",
+        ]
+
+        if self.headless:
+            args.append("--headless")
+
+        server = StdioServerParameters(
+            command="npx",
+            args=args,
+        )
+
+        # stdio client context
+        self._ctx = stdio_client(server)
+        self._read, self._write = await self._ctx.__aenter__()
+
+        # MCP session context
+        self._session_cm = ClientSession(self._read, self._write)
+        self._session = await self._session_cm.__aenter__()
+
+        # Initialize MCP session
+        await self._session.initialize()
 
     async def list_tools(self):
+        if not self._session:
+            raise RuntimeError("MCP session not started. Call start() first.")
+        tools = await self._session.list_tools()
+        return tools.tools
+
+    async def call_tool(self, tool_name: str, parameters: dict, timeout: float = 60.0):
+        if not self._session:
+            raise RuntimeError("MCP session not started. Call start() first.")
+
         try:
-            print("[MCP] Listing tools...")
-            tools = await self._session.list_tools()
-            print(f"[MCP] Tools listed successfully: {len(tools.tools)} tools found")
-            return tools.tools
-        except Exception as e:
-            print(f"[MCP] ERROR listing tools: {e}")
-            raise
-    
-    async def call_tool(self, tool_name: str, parameters: dict):
-        try:
-            print(f"[MCP] Calling tool {tool_name} with parameters: {parameters}")
-            # Add timeout to prevent hanging
             response = await asyncio.wait_for(
                 self._session.call_tool(name=tool_name, arguments=parameters),
-                timeout=60.0  # 60 second timeout
+                timeout=timeout,
             )
-            print(f"[MCP] Tool {tool_name} completed successfully: {response}")
             return response
         except asyncio.TimeoutError:
-            print(f"[MCP] TIMEOUT: Tool {tool_name} took too long to complete")
-            raise
-        except Exception as e:
-            print(f"[MCP] ERROR calling tool {tool_name}: {e}")
-            import traceback
-            traceback.print_exc()
-            raise
+            raise TimeoutError(
+                f"MCP tool '{tool_name}' timed out after {timeout} seconds"
+            )
 
     async def get_page_content(self) -> str:
-        try:
-            print("[MCP] Getting page content...")
-            result = await self._session.call_tool("browser_evaluate", {"function": "() => document.documentElement.outerHTML"})
-            content = result.content if hasattr(result, 'content') else str(result)
-            print(f"[MCP] Page content retrieved, length: {len(content)}")
-            return content
-        except Exception as e:
-            print(f"[MCP] ERROR getting page content: {e}")
-            raise
+        if not self._session:
+            raise RuntimeError("MCP session not started. Call start() first.")
+
+        result = await self.call_tool("browser_snapshot", {})
+
+        texts: list[str] = []
+        if hasattr(result, "content") and result.content:
+            for item in result.content:
+                text = getattr(item, "text", None)
+                if text:
+                    texts.append(text)
+
+        return "\n\n".join(texts)
 
     async def stop(self):
-        print("[MCP] Stopping service...")
-        if self._session:
-            await self._session.__aexit__(None, None, None)
-        if self._ctx:
+        if self._session_cm is not None:
+            await self._session_cm.__aexit__(None, None, None)
+            self._session_cm = None
+            self._session = None
+
+        if self._ctx is not None:
             await self._ctx.__aexit__(None, None, None)
-        print("[MCP] Service stopped")
+            self._ctx = None
+            self._read = None
+            self._write = None
 
     @property
     def session(self):

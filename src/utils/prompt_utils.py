@@ -1,4 +1,4 @@
-from utils.automation_utils import get_website
+from src.utils.automation_utils import get_website
 
 # System prompt defining the agent's role and behavior
 def default_system_prompt() -> str:
