@@ -21,7 +21,10 @@ class LLMMCPAutomation:
         print("Started LLM Automation execution...")
         
         await self.playwright_mcp_service.start() # start MCP service
-        await self.playwright_mcp_service.session.call_tool("goto", {"url": get_website()}) # Start automation by going to website
+        print("Started Playwright MCP...")
+        print("List tools", await self.playwright_mcp_service.list_tools())
+        await self.playwright_mcp_service.call_tool(tool_name="browser_navigate", parameters={"url": get_website()}) # Start automation by going to website
+        print("Went to the website...")
         
         done = False # flag to confirm completion of automation
         max_iterations = 20  # safety limit to prevent infinite loops
@@ -64,7 +67,7 @@ class LLMMCPAutomation:
                 # Execute the action on MCP
                 if tool != "none":
                     try:
-                        await self.playwright_mcp_service.session.call_tool(tool, params)
+                        await self.playwright_mcp_service.call_tool(tool_name=tool, parameters=params)
                         self.logger.info(f"Successfully executed action tool: {tool}, params: {params}")
                     except Exception as e:
                         self.logger.error(f"Error executing MCP action with tool: {action_data}, params: {params}: {e}")
