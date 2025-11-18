@@ -1,34 +1,65 @@
 import os
+from functools import lru_cache
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_website():
-    if os.getenv("WEBSITE_URL") is None:
-        raise ValueError("WEBSITE_URL environment variable is not set.")
-    return os.getenv("WEBSITE_URL")
-    
-def get_user_credentials():
-    if os.getenv("USER_EMAIL") is None or os.getenv("USER_PASSWORD") is None:
-        raise ValueError("USER_EMAIL or USER_PASSWORD environment variable is not set.")
-    return os.getenv("USER_EMAIL"), os.getenv("USER_PASSWORD")
+class ConfigCache:
+    """Cache for environment variables to improve performance."""
+    _cache = {}
 
-def get_llm_url():
-    if os.getenv("OPENROUTER_BASE_URL") is None:
-        raise ValueError("OPENROUTER_BASE_URL environment variable is not set.")
-    return os.getenv("OPENROUTER_BASE_URL")
+    @classmethod
+    def get_cached_env(cls, key: str, required: bool = True):
+        """Get cached environment variable or raise error if required and not set."""
+        if key not in cls._cache:
+            value = os.getenv(key)
+            if required and value is None:
+                raise ValueError(f"{key} environment variable is not set.")
+            cls._cache[key] = value
+        return cls._cache[key]
 
-def get_model():
-    if os.getenv("OPENROUTER_MODEL") is None:
-        raise ValueError("OPENROUTER_MODEL environment variable is not set.")
-    return os.getenv("OPENROUTER_MODEL")
+@lru_cache(maxsize=None)
+def get_website() -> str:
+    """Get website URL from environment with caching."""
+    return ConfigCache.get_cached_env("WEBSITE_URL")
 
-def get_llm_api_key():
-    if os.getenv("OPENROUTER_API_KEY") is None:
-        raise ValueError("OPENROUTER_API_KEY environment variable is not set.")
-    return os.getenv("OPENROUTER_API_KEY")
+def get_user_credentials() -> tuple[str, str]:
+    """
+    Get user credentials from environment.
 
-def get_headless_mode():
-    if os.getenv("BROWSER_HEADLESS") is None:
-        raise ValueError("BROWSER_HEADLESS environment variable is not set.")
-    return os.getenv("BROWSER_HEADLESS").lower() in ('true', True, 'True')
+    Returns:
+        tuple: (email, password) for user authentication
+
+    Note: Currently used in tests and login tasks for authentication.
+    """
+    email = ConfigCache.get_cached_env("USER_EMAIL")
+    password = ConfigCache.get_cached_env("USER_PASSWORD")
+    return email, password
+
+@lru_cache(maxsize=None)
+def get_llm_url() -> str:
+    """Get LLM URL from environment with caching."""
+    return ConfigCache.get_cached_env("OPENROUTER_BASE_URL")
+
+@lru_cache(maxsize=None)
+def get_model() -> str:
+    """Get model name from environment with caching."""
+    return ConfigCache.get_cached_env("OPENROUTER_MODEL")
+
+@lru_cache(maxsize=None)
+def get_llm_api_key() -> str:
+    """Get LLM API key from environment with caching."""
+    return ConfigCache.get_cached_env("OPENROUTER_API_KEY")
+
+@lru_cache(maxsize=None)
+def get_headless_mode() -> bool:
+    """
+    Get headless mode setting from environment with caching.
+
+    Returns:
+        bool: True if browser should run in headless mode
+
+    Note: Used in tests and browser automation for headless configuration.
+    """
+    headless_value = ConfigCache.get_cached_env("BROWSER_HEADLESS")
+    return headless_value.lower() in ('true', '1', 'yes')

@@ -1,19 +1,21 @@
 import json
 from openai import OpenAI
-from services.llm_service import LLMService
-from services.playwright_mcp_service import PlaywrightMCPService
-from utils.automation_utils import get_website, get_llm_api_key, get_llm_url
-from utils.prompt_utils import default_system_prompt, create_user_prompt
+from src.services.llm_service import LLMService
+from src.services.playwright_mcp_service import PlaywrightMCPService
+from src.utils.automation_utils import get_website, get_llm_api_key, get_llm_url, get_headless_mode
+from src.utils.prompt_utils import default_system_prompt, create_user_prompt
 
 class LLMMCPAutomation:
     def __init__(self):
         self.context = []
         self.llm_service = LLMService(client = OpenAI(api_key=get_llm_api_key(), base_url=get_llm_url()))
-        self.playwright_mcp_service = PlaywrightMCPService()
+        self.playwright_mcp_service = PlaywrightMCPService(headless=get_headless_mode())
     
     async def execute(self, user_query: str):
+        print("Started LLM Automation execution...")
+        
         await self.playwright_mcp_service.start() # start MCP service
-        await self.playwright_mcp_service.session.call_tool("goto", {"url": get_website}) # Start automation by going to website
+        await self.playwright_mcp_service.call_tool(tool_name="browser_navigate", parameters={"url": get_website()}) # Start automation by going to website
         
         done = False # flag to confirm completion of automation
         max_iterations = 20  # safety limit to prevent infinite loops
@@ -23,11 +25,11 @@ class LLMMCPAutomation:
             try:
                 page_content = await self.playwright_mcp_service.get_page_content()
                 tools_list = await self.playwright_mcp_service.list_tools()
-                available_tools = [tool['name'] for tool in tools_list]
+                available_tools = [tool.name for tool in tools_list]
             except Exception as e:
-                print(f"Error getting page content from MCP: {e}")
+                print(f"An error occurred while fetching page content or tools: {e}")
                 break
-            
+            print(f"Available tools: {available_tools}")
             # Get next best action to perform from LLM
             try:
                 # Create user prompt for LLM
@@ -36,6 +38,8 @@ class LLMMCPAutomation:
                 # Generate LLM response to perform next best action
                 llm_message = [{ "role": "system", "content": default_system_prompt() }, { "role": "user", "content": user_prompt }]
                 llm_response = self.llm_service.generate_response(llm_message)
+                
+                print(f"LLM Response: {llm_response}")
                 
                 # Parse LLM response as JSON
                 try:
@@ -54,7 +58,7 @@ class LLMMCPAutomation:
                 # Execute the action on MCP
                 if tool != "none":
                     try:
-                        await self.playwright_mcp_service.session.call_tool(tool, params)
+                        await self.playwright_mcp_service.call_tool(tool_name=tool, parameters=params)
                         print(f"Successfully executed action tool: {tool}, params: {params}")
                     except Exception as e:
                         print(f"Error executing MCP action with tool: {action_data}, params: {params}: {e}")
@@ -73,3 +77,6 @@ class LLMMCPAutomation:
             max_iterations -= 1
         
         await self.playwright_mcp_service.stop() # Stop MCP service
+        
+        print("\n\n=========== CONTEXT:\n", self.context, "\n===========\n")
+        return "LLM Automation execution completed."

@@ -1,9 +1,10 @@
-from automation_utils import get_website
+from src.utils.automation_utils import get_website
 
 # System prompt defining the agent's role and behavior
 def default_system_prompt() -> str:
-    return f"""# Web Automation Specialist
-    You are an expert web automation agent using Playwright MCP tools to complete tasks on **{get_website()}**.
+    website = get_website()
+    return """# Web Automation Specialist
+    You are an expert web automation agent using Playwright MCP tools to complete tasks on **{website}**.
 
     ## YOUR ROLE
     - Analyze the current page state and user goal
@@ -27,22 +28,22 @@ def default_system_prompt() -> str:
     
     Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL IF ACTION IS TO BE TAKEN:
     ```json
-    {
+    {{
     "tool": "tool_name",
-    "parameters": {"param": "value"},
+    "params": {{"param": "value"}},
     "reasoning": "Clear explanation of why this action moves us toward the goal"
-    }```
+    }}```
     
     ELSE IF no suitable action exists, return:
     ```json
-    {
+    {{
     "tool": "none",
     "reasoning": "Specific explanation why no action is appropriate"
-    }```
-    """
+    }}```
+    """.format(website=website)
 
-def create_user_prompt(user_prompt: str, page_content: str, available_tools: list) -> str:
-    return f"""
+def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
+    return """
     Based on the GOAL, CURRENT PAGE CONTENT, and AVAILABLE TOOLS, determine the next best action to take.
     
     GOAL (USER PROMPT):
@@ -58,16 +59,20 @@ def create_user_prompt(user_prompt: str, page_content: str, available_tools: lis
     
     Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL IF ACTION IS TO BE TAKEN:
     ```json
-    {
+    {{
     "tool": "tool_name",
-    "parameters": {"param": "value"},
+    "params": {{"param": "value"}},
     "reasoning": "Clear explanation of why this action moves us toward the goal"
-    }```
+    }}```
     
     ELSE IF no suitable action exists, return:
     ```json
-    {
+    {{
     "tool": "none",
     "reasoning": "Specific explanation why no action is appropriate"
-    }```
-    """
+    }}```
+    """.format(
+        user_prompt=user_prompt,
+        page_content=page_content,
+        available_tools=available_tools
+    )
