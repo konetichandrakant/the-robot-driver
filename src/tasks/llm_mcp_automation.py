@@ -2,20 +2,20 @@ import json
 from openai import OpenAI
 from src.services.llm_service import LLMService
 from src.services.playwright_mcp_service import PlaywrightMCPService
-from src.utils.automation_utils import get_website, get_llm_api_key, get_llm_url, get_headless_mode
+from src.config import WEBSITE_URL, OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL, BROWSER_HEADLESS
 from src.utils.prompt_utils import default_system_prompt, create_user_prompt
 
 class LLMMCPAutomation:
     def __init__(self):
         self.context = []
-        self.llm_service = LLMService(client = OpenAI(api_key=get_llm_api_key(), base_url=get_llm_url()))
-        self.playwright_mcp_service = PlaywrightMCPService(headless=get_headless_mode())
+        self.llm_service = LLMService(model=OPENROUTER_MODEL, client = OpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL))
+        self.playwright_mcp_service = PlaywrightMCPService(headless=BROWSER_HEADLESS)
     
     async def execute(self, user_query: str):
         print("Started LLM Automation execution...")
         
         await self.playwright_mcp_service.start() # start MCP service
-        await self.playwright_mcp_service.call_tool(tool_name="browser_navigate", parameters={"url": get_website()}) # Start automation by going to website
+        await self.playwright_mcp_service.call_tool(tool_name="browser_navigate", parameters={"url": WEBSITE_URL}) # Start automation by going to website
         
         done = False # flag to confirm completion of automation
         max_iterations = 20  # safety limit to prevent infinite loops

@@ -1,6 +1,6 @@
 import pytest
 from src.services.playwright_mcp_service import PlaywrightMCPService
-from src.utils.automation_utils import get_website
+from src.config import WEBSITE_URL
 
 @pytest.mark.asyncio
 async def test_mcp_service():
@@ -14,7 +14,7 @@ async def test_mcp_service():
         print(f"Found {len(tools)} tools")
         
         print("=== Testing browser_navigate ===")
-        await service.call_tool("browser_navigate", {"url": get_website()})
+        await service.call_tool("browser_navigate", {"url": WEBSITE_URL})
         print("Navigation done")
 
         print("=== Getting page content ===")
