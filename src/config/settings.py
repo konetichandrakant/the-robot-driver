@@ -1,8 +1,3 @@
-"""
-Configuration settings for The Robot Driver.
-"""
-
-import os
 from typing import Tuple
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,8 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config(BaseSettings):
-    """Configuration class for environment variables."""
-
     # Application Settings
     app_name: str = Field(default="The Robot Driver", alias="APP_NAME")
     debug: bool = Field(default=False, alias="DEBUG")
