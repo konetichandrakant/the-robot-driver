@@ -8,7 +8,7 @@ def default_system_prompt() -> str:
 
     ## YOUR ROLE
     - Analyze the current page state and user goal
-    - Select the optimal single action from available MCP tools
+    - Select the optimal single action from available MCP tools and page content
     - Execute step-by-step towards goal completion
     - Adapt strategy based on page changes
 
@@ -26,7 +26,10 @@ def default_system_prompt() -> str:
 
     ## RESPONSE FORMAT
     
-    Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL IF ACTION IS TO BE TAKEN:
+    Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL:
+    
+    IF ACTION IS TO BE TAKEN:
+    
     ```json
     {{
     "tool": "tool_name",
@@ -35,6 +38,7 @@ def default_system_prompt() -> str:
     }}```
     
     ELSE IF no suitable action exists, return:
+    
     ```json
     {{
     "tool": "none",
@@ -57,7 +61,10 @@ def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
 
     ## RESPONSE FORMAT
     
-    Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL IF ACTION IS TO BE TAKEN:
+    Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL:
+    
+    IF ACTION IS TO BE TAKEN:
+    
     ```json
     {{
     "tool": "tool_name",
@@ -66,6 +73,7 @@ def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
     }}```
     
     ELSE IF no suitable action exists, return:
+    
     ```json
     {{
     "tool": "none",
