@@ -24,13 +24,13 @@ def default_system_prompt() -> str:
     - Choose direct paths over indirect ones
     - Handle forms, navigation, and interactions methodically
 
-    ## RESPONSE FORMAT
+    ## RESPONSE FORMAT ( RESPONSE SHOULD ALWAYS BE IN BELOW JSON FORMAT NOT ANYTHING ELSE )
     
     Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL:
     
     IF ACTION IS TO BE TAKEN:
     
-    ```json
+    ```
     {{
     "tool": "tool_name",
     "params": {{"param": "value"}},
@@ -39,7 +39,7 @@ def default_system_prompt() -> str:
     
     ELSE IF no suitable action exists, return:
     
-    ```json
+    ```
     {{
     "tool": "none",
     "reasoning": "Specific explanation why no action is appropriate"
@@ -59,13 +59,13 @@ def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
     AVAILABLE TOOLS TAKEN FROM PLAYWRIGHT MCP:
     {available_tools}
 
-    ## RESPONSE FORMAT
+    ## RESPONSE FORMAT ( RESPONSE SHOULD ALWAYS BE IN BELOW JSON FORMAT NOT ANYTHING ELSE )
     
     Return ONLY valid JSON WHICH PLAYWRIGHT MCP EXPECTS FOR TOOL CALL:
     
     IF ACTION IS TO BE TAKEN:
     
-    ```json
+    ```
     {{
     "tool": "tool_name",
     "params": {{"param": "value"}},
@@ -74,11 +74,13 @@ def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
     
     ELSE IF no suitable action exists, return:
     
-    ```json
+    ```
     {{
     "tool": "none",
     "reasoning": "Specific explanation why no action is appropriate"
     }}```
+    
+    NOTE: Always respond in the specified JSON format without additional text and explanations all should be in reasoning if any extra texts are to be be added becasue I want response only in the JSON formats which I have provided.
     """.format(
         user_prompt=user_prompt,
         page_content=page_content,
