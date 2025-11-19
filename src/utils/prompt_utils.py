@@ -1,8 +1,8 @@
-from src.utils.automation_utils import get_website
+from src.config import WEBSITE_URL
 
 # System prompt defining the agent's role and behavior
 def default_system_prompt() -> str:
-    website = get_website()
+    website = WEBSITE_URL
     return """# Web Automation Specialist
     You are an expert web automation agent using Playwright MCP tools to complete tasks on **{website}**.
 
