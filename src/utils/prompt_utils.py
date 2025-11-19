@@ -46,9 +46,9 @@ def default_system_prompt() -> str:
     }}```
     """.format(website=website)
 
-def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
+def create_user_prompt(user_prompt: str, page_content, available_tools, actions_performed) -> str:
     return """
-    Based on the GOAL, CURRENT PAGE CONTENT, and AVAILABLE TOOLS, determine the next best action to take.
+    Based on the GOAL, CURRENT PAGE CONTENT, AVAILABLE TOOLS, and ACTIONS ALREADY PERFORMED determine the next best action to take.
     
     GOAL (USER PROMPT):
     {user_prompt}
@@ -58,6 +58,9 @@ def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
 
     AVAILABLE TOOLS TAKEN FROM PLAYWRIGHT MCP:
     {available_tools}
+    
+    STEPS ALREADY TAKEN or PERFORMED PREVIOUSLY IN THIS SESSION TO BE NOT REPEATED:
+    {actions_performed}
 
     ## RESPONSE FORMAT ( RESPONSE SHOULD ALWAYS BE IN BELOW JSON FORMAT NOT ANYTHING ELSE )
     
@@ -84,5 +87,6 @@ def create_user_prompt(user_prompt: str, page_content, available_tools) -> str:
     """.format(
         user_prompt=user_prompt,
         page_content=page_content,
-        available_tools=available_tools
+        available_tools=available_tools,
+        actions_performed=actions_performed
     )

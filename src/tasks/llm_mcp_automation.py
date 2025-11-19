@@ -4,7 +4,7 @@ from src.services.llm_service import LLMService
 from src.services.playwright_mcp_service import PlaywrightMCPService
 from src.config import WEBSITE_URL, OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL, BROWSER_HEADLESS
 from src.utils.prompt_utils import default_system_prompt, create_user_prompt
-from src.utils.automation_utils import extract_json_from_response
+from src.utils.automation_utils import extract_json_from_response, combine_actions_performed
 
 class LLMMCPAutomation:
     def __init__(self):
@@ -34,7 +34,8 @@ class LLMMCPAutomation:
             # Get next best action to perform from LLM
             try:
                 # Create user prompt for LLM
-                user_prompt = create_user_prompt(user_query, page_content, available_tools)
+                actions_performed = combine_actions_performed(self.context)
+                user_prompt = create_user_prompt(user_query, page_content, available_tools, actions_performed)
                 
                 # Generate LLM response to perform next best action
                 llm_message = [{ "role": "system", "content": default_system_prompt() }, { "role": "user", "content": user_prompt }]
@@ -82,4 +83,5 @@ class LLMMCPAutomation:
         await self.playwright_mcp_service.stop() # Stop MCP service
         
         print("\n\n=========== CONTEXT: ===========\n", self.context, "\n=================================\n")
-        return "LLM Automation execution completed."
+        
+        print("LLM Automation execution completed.")

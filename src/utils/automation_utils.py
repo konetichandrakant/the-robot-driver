@@ -17,3 +17,10 @@ def extract_json_from_response(response: str) -> str:
 
     # If no JSON found, return the original response
     return response.strip()
+
+def combine_actions_performed(context: list[dict]) -> str:
+    actions = []
+    for message in context:
+        if message['role'] == 'assistant':
+            actions.append(message['content'])
+    return "\n".join(actions)
