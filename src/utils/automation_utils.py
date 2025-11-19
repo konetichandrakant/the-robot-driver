@@ -1,0 +1,19 @@
+import re
+
+def extract_json_from_response(response: str) -> str:
+    # First, try to find JSON in code blocks
+    code_block_pattern = r'```(?:json)?\s*(\{.*?\})\s*```'
+    matches = re.findall(code_block_pattern, response, re.DOTALL)
+    if matches:
+        return matches[0].strip()
+
+    # Then, try to find JSON object directly in the response
+    json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+    matches = re.findall(json_pattern, response, re.DOTALL)
+
+    # Return the last match (most likely to be the complete JSON)
+    if matches:
+        return matches[-1].strip()
+
+    # If no JSON found, return the original response
+    return response.strip()

@@ -4,6 +4,7 @@ from src.services.llm_service import LLMService
 from src.services.playwright_mcp_service import PlaywrightMCPService
 from src.config import WEBSITE_URL, OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL, BROWSER_HEADLESS
 from src.utils.prompt_utils import default_system_prompt, create_user_prompt
+from src.utils.automation_utils import extract_json_from_response
 
 class LLMMCPAutomation:
     def __init__(self):
@@ -29,7 +30,7 @@ class LLMMCPAutomation:
             except Exception as e:
                 print(f"An error occurred while fetching page content or tools: {e}")
                 break
-            print(f"Available tools: {available_tools}")
+            
             # Get next best action to perform from LLM
             try:
                 # Create user prompt for LLM
@@ -40,10 +41,11 @@ class LLMMCPAutomation:
                 llm_response = self.llm_service.generate_response(llm_message)
                 
                 print(f"LLM Response: {llm_response}")
-                
-                # Parse LLM response as JSON
+
+                # Extract JSON from LLM response (handles markdown code blocks)
                 try:
-                    action_data = json.loads(llm_response)
+                    json_response = extract_json_from_response(llm_response)
+                    action_data = json.loads(json_response)
                     tool = action_data.get('tool')
                     params = action_data.get('params', {})
                     reasoning = action_data.get('reasoning', '')
@@ -51,6 +53,7 @@ class LLMMCPAutomation:
                         raise KeyError("Invalid tool or params in LLM response")
                     if tool not in available_tools and tool != "none":
                         raise KeyError(f"Tool '{tool}' not in available tools: {available_tools}")
+                    print(f"Parsed action: tool={tool}, params={params}")
                 except (json.JSONDecodeError, KeyError) as e:
                     print(f"Error parsing LLM response: {e}, response was: {llm_response}")
                     break
@@ -78,5 +81,5 @@ class LLMMCPAutomation:
         
         await self.playwright_mcp_service.stop() # Stop MCP service
         
-        print("\n\n=========== CONTEXT:\n", self.context, "\n===========\n")
+        print("\n\n=========== CONTEXT: ===========\n", self.context, "\n=================================\n")
         return "LLM Automation execution completed."
