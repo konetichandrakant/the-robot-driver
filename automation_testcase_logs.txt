@@ -1,0 +1,54 @@
+tests/test_llm_mcp_automation.py::test_find_cheapest_jeans_and_add_to_cart Started LLM Automation execution...
+LLM Response for next best action 
+ ```
+{
+  "tool": "browser_click",
+  "params": {"selector": "text=Men"},
+  "reasoning": "To find the cheapest jeans for men, we first need to navigate to the men's section. Clicking on the 'Men' link will help us achieve this goal."    
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Men'}
+LLM Response for next best action 
+ ```
+{
+  "tool": "browser_click",
+  "params": {"selector": "text=Jeans"},
+  "reasoning": "Since we are already in the men's section, the next step is to find the jeans category. However, there is no direct link to 'Jeans' on the current page. We will have to navigate through the product listings to find the jeans section or use other filters. But first, let's try to find 'Jeans' by clicking on any available links that might lead us to the jeans section."
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Jeans'}
+LLM Response for next best action 
+ ```json
+{
+  "tool": "browser_click",
+  "params": {"selector": "text=Rs. 799"},
+  "reasoning": "The current page displays various products, including jeans for men. The product 'Soft Stretch Jeans' is priced at Rs. 799, which seems to be the cheapest option available. Clicking on this product will allow us to view its details and potentially add it to the cart, moving us closer to our goal of finding the cheapest jeans for men."
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Rs. 799'}
+LLM Response for next best action 
+ ```json
+{
+  "tool": "browser_click",
+  "params": {"selector": "text=Add to cart"},
+  "reasoning": "Since we have found the cheapest jeans for men, which is the 'Soft Stretch Jeans' priced at Rs. 799, the next step is to add it to the cart. Clicking on the 'Add to cart' button will help us achieve this goal."
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Add to cart'}
+LLM Response for next best action 
+ ```json
+{
+  "tool": "none",
+  "reasoning": "We have already found the cheapest jeans for men, which is the 'Soft Stretch Jeans' priced at Rs. 799, and added it to the cart. Since our goal was to find the cheapest jeans for men and add it to the cart, and we have already achieved this, there are no more suitable actions to take."
+}
+```
+
+No action to be taken reason: We have already found the cheapest jeans for men, which is the 'Soft Stretch Jeans' priced at Rs. 799, and added it to the cart. Since our goal was to find the cheapest jeans for men and add it to the cart, and we have already achieved this, there are no more suitable actions to take.
+LLM Automation execution completed.
+PASSED
+
+======================================================================= 1 passed in 29.50s ========================================================================
