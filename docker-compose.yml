@@ -17,11 +17,21 @@ services:
       DISPLAY: ${DISPLAY}
       PYTHONUNBUFFERED: "1"
       PYTHONDONTWRITEBYTECODE: "1"
-      # add BROWSER_HEADLESS here if you want, or leave it out:
-      # BROWSER_HEADLESS: "false"
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
       - ./.env:/app/.env:ro
       - /tmp/.X11-unix:/tmp/.X11-unix
     command: pytest -vv -s tests/test_login_task.py
+
+  api:
+    image: the-robot-driver-app
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./.env:/app/.env:ro
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
