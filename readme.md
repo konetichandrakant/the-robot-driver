@@ -1,184 +1,66 @@
 # The Robot Driver
 
-A powerful Playwright-based automation framework with MCP (Model Context Protocol) integration for intelligent web automation.
+Agentic web automation tool that turns a **single natural-language prompt** into a sequence of **Playwright + MCP** browser actions.  
+An LLM (via OpenRouter) decides what to do next on the page (navigate, click, type, etc.) until your task is completed.
+
+---
 
 ## Features
 
-- **Browser Automation**: Full Playwright integration for reliable web automation
-- **MCP Integration**: AI-powered automation through Model Context Protocol
-- **Modular Architecture**: Clean separation of concerns with service-based design
-- **Configuration Management**: Flexible settings with environment variable support
-- **Error Handling**: Comprehensive error handling and logging
-- **Screenshot Support**: Automatic screenshot capture on failures
-- **Docker Support**: Ready-to-use Docker configuration
+- **Agentic Web Automation**  
+  Give one prompt (e.g., *"Log in, search for a red dress and add it to cart"*).  
+  The agent figures out the full sequence of browser actions.
 
-## Project Structure
+- **Playwright + MCP**  
+  Uses Playwright and the `@playwright/mcp` server to expose browser tools (navigate, click, type, etc.) to the LLM.
 
-```
-the-robot-driver/
-├── src/                          # Main source code
-│   ├── config/                   # Configuration management
-│   │   └── settings.py          # Application settings
-│   ├── services/                 # Core services
-│   │   ├── browser_service.py   # Browser automation service
-│   │   ├── mcp_service.py       # MCP/AI integration service
-│   │   ├── automation_service.py # Main automation orchestrator
-│   │   └── ai_service.py        # AI-powered features
-│   ├── tasks/                    # Automation tasks
-│   │   ├── signup.py           # User signup automation
-│   │   └── llm_automation.py   # LLM-powered automation
-│   └── utils/                    # Utility modules
-│       └── logger.py            # Logging configuration
-├── tests/                        # Test suite
-├── logs/                         # Application logs (auto-created)
-├── screenshots/                  # Screenshots (auto-created)
-├── playwright_mcp_automation.py # Main entry point
-├── requirements.txt              # Python dependencies
-├── Dockerfile                   # Docker configuration
-├── docker-compose.yml          # Docker Compose setup
-├── .env                        # Environment variables
-└── README.md                   # This file
-```
+- **LLM via OpenRouter**  
+  Model is configurable via environment variables (`OPENROUTER_MODEL`, `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`).
 
-## Quick Start
+- **FastAPI HTTP API**  
+  Simple REST endpoint to trigger automation from any client.
 
-### Using Docker (Recommended)
+- **Robust Configuration**  
+  `.env`-driven settings for browser behavior, timeouts, target site, credentials, and LLM configuration.
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd the-robot-driver
-   ```
+- **Test Suite**  
+  Pytest-based tests for:
+  - Automation flow
+  - Login task
+  - MCP + LLM interaction
 
-2. **Configure environment**
-   ```bash
-   # Edit .env with your settings
-   ```
+- **Docker-Ready**  
+  Dockerfile + `docker-compose.yml` for reproducible runs and CI/CD integration.
 
-3. **Build and run**
-   ```bash
-   docker-compose up --build
-   ```
+---
 
-### Local Development
+## Architecture Overview
 
-1. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   playwright install
-   ```
+> No folder tree here – just the concepts.
 
-2. **Configure environment**
-   ```bash
-   # Edit .env with your settings
-   ```
+- **API Layer (FastAPI)**
+  - Entry point: `src/api/main.py`
+  - Router: `src/api/routers/automation.py`
+  - Single main endpoint:  
+    `POST /api/run-automation` – runs the agentic workflow for a given user query.
 
-3. **Run the application**
-   ```bash
-   python playwright_mcp_automation.py
-   ```
+- **Tasks**
+  - `LLMMCPAutomation` in `src/tasks/automation_task.py`:
+    - Orchestrates the LLM and Playwright MCP.
+    - Maintains context across multiple steps.
+    - Applies a safety limit (max iterations) to prevent infinite loops.
+  - `LoginTask` (in `src/tasks/login_task.py`) encapsulates login-related steps.
 
-## Configuration
+- **Services**
+  - `LLMService` (`src/services/llm_service.py`):
+    - Wraps OpenRouter-compatible LLM calls.
+    - Handles system prompt, user prompt, and response parsing.
+  - `PlaywrightMCPService` (`src/services/playwright_mcp_service.py`):
+    - Starts the MCP server.
+    - Exposes tools like `browser_navigate`, `browser_click`, `browser_type`, etc.
+    - Executes tool calls coming from the LLM.
 
-The application uses environment variables for configuration. Modify the `.env` file as needed:
-
-```bash
-# Application Settings
-APP_NAME=The Robot Driver
-DEBUG=false
-
-# Browser Settings
-BROWSER_HEADLESS=false
-BROWSER_SLOW_MO=100
-BROWSER_TIMEOUT=30000
-
-# Server Settings
-HOST=0.0.0.0
-PORT=8000
-
-# MCP Settings (Optional)
-MCP_SERVER_URL=http://localhost:8080
-MCP_API_KEY=your_api_key_here
-```
-
-## Usage Examples
-
-### Basic Web Automation
-
-```python
-from services.automation_service import AutomationService
-from config.settings import Settings
-
-async def example_automation():
-    settings = Settings()
-    automation_service = AutomationService(browser_service, mcp_service, settings)
-
-    task_config = {
-        "type": "web_automation",
-        "url": "https://example.com",
-        "actions": [
-            {"type": "fill", "selector": "input[name='username']", "value": "testuser"},
-            {"type": "fill", "selector": "input[name='password']", "value": "password123"},
-            {"type": "click", "selector": "button[type='submit']"},
-            {"type": "wait", "timeout": 2000},
-            {"type": "screenshot", "filename": "login_success.png"}
-        ]
-    }
-
-    result = await automation_service.execute_task(task_config)
-    print(result)
-```
-
-### Page Analysis with AI
-
-```python
-task_config = {
-    "type": "page_analysis",
-    "url": "https://example.com"
-}
-
-result = await automation_service.execute_task(task_config)
-if result["success"]:
-    print("Page analysis:", result["analysis"])
-```
-
-## Testing
-
-Run the test suite:
-
-```bash
-pytest tests/
-```
-
-## Docker Configuration
-
-The project includes Docker support with:
-- **Dockerfile**: Multi-stage build for production
-- **docker-compose.yml**: Development setup with volume mounting
-- **.dockerignore**: Optimized build context
-
-## Development
-
-### Adding New Services
-
-1. Create service file in `src/services/`
-2. Implement the service class with `start()` and `stop()` methods
-3. Register in main application if needed
-
-### Adding New Tasks
-
-1. Create task file in `src/tasks/`
-2. Implement async functions with proper error handling
-3. Add logging for debugging
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
+- **Utilities**
+  - `prompt_utils.py`: default system prompt + user prompt builder.
+  - `automation_utils.py`: JSON extraction, validation, and action parsing helpers.
+  - `config/settings.py`: central configuration using `pydantic-settings`.
