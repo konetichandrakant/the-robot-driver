@@ -9,14 +9,19 @@ from src.utils.automation_utils import extract_json_from_response, extract_actio
 class LLMMCPAutomation:
     
     # Initialize LLM service and Playwright MCP service
-    def __init__(self):
+    def __init__(self, user_query):
+        self.user_query=user_query
         self.context = []
         self.llm_service = LLMService(model=OPENROUTER_MODEL, client = OpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL))
         self.playwright_mcp_service = PlaywrightMCPService(headless=BROWSER_HEADLESS)
     
     # Executes or performs the LLM-driven MCP automation
-    async def execute(self, user_query: str):
+    async def execute(self):
         print("Started LLM Automation execution...")
+        
+        user_query = self.user_query
+        
+        automation_response = []
         
         # start MCP service
         await self.playwright_mcp_service.start()
@@ -77,7 +82,8 @@ class LLMMCPAutomation:
                     await self.playwright_mcp_service.call_tool(tool_name, parameters)
                     print(f"Successfully executed action tool: {tool_name}, params: {parameters}")
                     
-                    # As this action is executed properly via MCP we need to send the same parsed llm_response in return for API interaction in form of yield
+                    # As this action is executed properly via MCP we need to send the same parsed llm_response we need to add this to the response details
+                    automation_response.append(action_data)
                     
                 except Exception as e:
                     print(f"Error executing MCP action with tool: {action_data}, parameters: {parameters}: {e}")
@@ -85,6 +91,10 @@ class LLMMCPAutomation:
                 
             else:
                 print(f"No action to be taken reason: {reasoning}")
+                
+                # No action to be taken so just add the llm response to the final response
+                automation_response.append(action_data)
+                
                 # stopping condition met so break the loop
                 break
         
@@ -98,3 +108,5 @@ class LLMMCPAutomation:
         await self.playwright_mcp_service.stop()
         
         print("LLM Automation execution completed.")
+        
+        return automation_response

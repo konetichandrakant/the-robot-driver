@@ -1,14 +1,27 @@
-version: '3.8'
-
 services:
-  app:
-    build: .
-    ports:
-      - "8000:8000"
+  automation_test:
+    image: the-robot-driver-app
+    environment:
+      BROWSER_HEADLESS: "true"
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
       - ./.env:/app/.env:ro
+    command: pytest -vv -s tests/test_automation_api.py
+
+  login_task_test:
+    image: the-robot-driver-app
     environment:
-      - PYTHONUNBUFFERED=1
-      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      DISPLAY: ${DISPLAY}
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      # add BROWSER_HEADLESS here if you want, or leave it out:
+      # BROWSER_HEADLESS: "false"
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./.env:/app/.env:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    command: pytest -vv -s tests/test_login_task.py

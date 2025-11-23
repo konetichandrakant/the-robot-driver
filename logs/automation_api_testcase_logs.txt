@@ -1,0 +1,44 @@
+tests/test_automation_api.py::test_automation_api_response Started LLM Automation execution...
+LLM Response for next best action 
+ ```json
+{
+  "tool": "browser_click",
+  "params": {
+    "selector": "text=Men"
+  },
+  "reasoning": "To find the cheapest jeans for men, we first need to navigate to the men's section. The link 'Men' is available on the current page, so we will click on it to proceed towards our goal."
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Men'}
+LLM Response for next best action 
+ ```json
+{
+  "tool": "browser_click",
+  "params": {
+    "selector": "text=Soft Stretch Jeans"
+  },
+  "reasoning": "We are looking for the cheapest jeans for men. After navigating to the men's section, we need to find the jeans products. The product 'Soft Stretch Jeans' is available on the current page and it seems to be a jeans product, so we will click on it to view its details and check if it's the cheapest option."    
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Soft Stretch Jeans'}
+LLM Response for next best action 
+ ```json
+{
+  "tool": "browser_click",
+  "params": {
+    "selector": "text=Add to cart"
+  },
+  "reasoning": "We are on the product details page of 'Soft Stretch Jeans' and our goal is to find the cheapest jeans for men and add to cart. The 'Add to cart' button is available on the current page, so we will click on it to add the product to the cart and proceed towards our goal."
+}
+```
+
+Successfully executed action tool: browser_click, params: {'selector': 'text=Add to cart'}
+Error getting LLM response: 'NoneType' object is not subscriptable
+LLM Automation execution completed.
+API Response Status: 200
+API Response Body: [{'tool': 'browser_click', 'params': {'selector': 'text=Men'}, 'reasoning': "To find the cheapest jeans for men, we first need to navigate to the men's section. The link 'Men' is available on the current page, so we will click on it to proceed towards our goal."}, {'tool': 'browser_click', 'params': {'selector': 'text=Soft Stretch Jeans'}, 'reasoning': "We are looking for the cheapest jeans for men. After navigating to the men's section, we need to find the jeans products. The product 'Soft Stretch Jeans' is available on the current page and it seems to be a jeans product, so we will click on it to view its details and check if it's the cheapest option."}, {'tool': 'browser_click', 'params': {'selector': 'text=Add to cart'}, 'reasoning': "We are on the product details page of 'Soft Stretch Jeans' and our goal is to find the cheapest jeans for men and add to cart. The 'Add to cart' button is available on the current page, so we will click on it to add the product to the cart and proceed towards our goal."}]
+PASSED
+
+================================================================== 1 passed in 93.70s (0:01:33) ===================================================================

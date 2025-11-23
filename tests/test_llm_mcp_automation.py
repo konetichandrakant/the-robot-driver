@@ -1,5 +1,6 @@
 import pytest
-from src.tasks.llm_mcp_automation import LLMMCPAutomation
+from src.tasks.automation_task import LLMMCPAutomation
+from src.config import WEBSITE_URL, OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL, BROWSER_HEADLESS
 
 @pytest.mark.asyncio
 async def test_find_cheapest_jeans_and_add_to_cart():
@@ -7,10 +8,12 @@ async def test_find_cheapest_jeans_and_add_to_cart():
         # User query ( user prompt )
         user_query = "Find cheapest jeans for men and add to cart."
         
-        automation = LLMMCPAutomation()
+        automation = LLMMCPAutomation(user_query)
         
         # Run the llm mcp automation
-        await automation.execute(user_query)
+        response = await automation.execute()
+        
+        print("Automation Response:", response)
         
         assert True
         

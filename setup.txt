@@ -1,33 +1,46 @@
 #====================================================
-#  The Robot Driver - Docker Setup Guide (Windows WSL if using windows os like me)
+#  The Robot Driver - Docker Setup Guide
+#  (Windows WSL example)
 #====================================================
-# This script sets up the Docker container for GUI applications
-# Run these commands in your WSL terminal after installing WSL and Docker Desktop
+# Run these commands in your WSL terminal after installing:
+#   - WSL
+#   - Docker Desktop (with WSL integration enabled)
+#   - An X server on Windows (e.g. VcXsrv / Xming)
+#====================================================
 
 #----------------------------------------
-#  Display Environment Configuration
+#  1. Display Environment Configuration
 #----------------------------------------
 # Configure X11 display forwarding for GUI applications in Docker
 export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0
+
 # Set OpenGL rendering mode for compatibility
 export LIBGL_ALWAYS_INDIRECT=1
 
 #----------------------------------------
-#  Navigate to Project Directory
+#  2. Navigate to Project Directory
 #----------------------------------------
-cd /mnt/d/ck/projects/the-robot-driver ( In my case )
+# In my case:
+cd /mnt/d/ck/projects/the-robot-driver
 
 #----------------------------------------
-#  Docker Setup
+#  3. Build Docker Image
 #----------------------------------------
-# Clean up previous build cache to ensure fresh build
+# (Optional) Clean up previous build cache
 docker builder prune -f
 
 # Build the Docker image with no cache for latest changes
 docker build --no-cache -t the-robot-driver-app .
 
 #----------------------------------------
-#  Run Docker Container
+#  4. Run Tests with Docker Compose
 #----------------------------------------
-# Run the container with GUI support and interactive terminal which can be seen by running below command
-docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix the-robot-driver-app pytest tests/test_login_task.py
+# NOTE: docker-compose.yml is already configured with:
+#   - service: automation_test      -> runs tests/test_automation_api.py
+#   - service: login_task_test      -> runs tests/test_login_task.py (with GUI/X11)
+
+# Run the automation API tests
+docker compose run --rm automation_test
+
+# Run the login task tests (GUI / browser tests)
+docker compose run --rm login_task_test
