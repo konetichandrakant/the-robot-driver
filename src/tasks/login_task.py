@@ -3,11 +3,12 @@ from playwright.async_api import async_playwright
 class Login:
     
     # Initialize with website URL and user credentials
-    def __init__(self, website_url: str = "", username: str = "", password: str = "", headless: bool = True):
+    def __init__(self, website_url: str = "", username: str = "", password: str = "", headless: bool = True, slow_mo: int = 1000):
         self.website_url = website_url
         self.username = username
         self.password = password
         self.headless = headless
+        self.slow_mo = slow_mo
     
     # execute function performs the login task
     async def execute(self) -> str:
@@ -17,7 +18,7 @@ class Login:
             browser = None
             try:
                 # Create browser instance (to have a real time view of the actions, headless is set to False)
-                browser = await p.chromium.launch(headless=self.headless, slow_mo=600)
+                browser = await p.chromium.launch(headless=self.headless, slow_mo=self.slow_mo)
                 page = await browser.new_page()
 
                 # Navigate to the URL from environment variable
