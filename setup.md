@@ -111,6 +111,9 @@ Now I can open:
 
   * **`http://localhost:8000/docs`** (FastAPI Swagger UI)
   * **`POST http://localhost:8000/api/run-automation`**
+  ```bash
+  [JSON] { "user_query": "post-your-prompt-here-in-this-and-send-a-http-post-request-with-this-user_query" }
+  ```
 
 ## 7\. Quick Troubleshooting 🛠️
 
@@ -136,3 +139,4 @@ Now I can open:
       * Check `BROWSER_HEADLESS` in `.env`
       * Try headless mode first: `BROWSER_HEADLESS=true`
       * Rebuild the image if Playwright version changed.
+
